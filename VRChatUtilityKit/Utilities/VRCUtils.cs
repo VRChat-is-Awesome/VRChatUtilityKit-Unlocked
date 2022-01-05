@@ -174,12 +174,15 @@ namespace VRChatUtilityKit.Utilities
         {
             // no result from server or they're currently down
             // Check tags/GameObjects then.
-            if (GameObject.Find("eVRCRiskFuncEnable") != null)
+            if (GameObject.Find("eVRCRiskFuncEnable") != null
+                || GameObject.Find("UniversalRiskyFuncEnable") != null)
             {
                 AreRiskyFunctionsAllowed = true;
                 return;
-            }
-            else if (GameObject.Find("eVRCRiskFuncDisable") != null)
+
+            } 
+            if (GameObject.Find("eVRCRiskFuncDisable") != null
+                  || GameObject.Find("UniversalRiskyFuncDisable") != null)
             {
                 AreRiskyFunctionsAllowed = false;
                 return;
@@ -187,7 +190,8 @@ namespace VRChatUtilityKit.Utilities
 
             foreach (string worldTag in world.tags)
             {
-                if (worldTag.ToLower().Contains("game") || worldTag.ToLower().Contains("club"))
+                if (worldTag.ToLower().Contains("game")
+                    || worldTag.ToLower().Contains("club"))
                 {
                     VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World NOT allowed to use risky functions");
                     AreRiskyFunctionsAllowed = false;
