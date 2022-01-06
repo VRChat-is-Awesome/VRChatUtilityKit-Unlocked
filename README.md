@@ -41,7 +41,6 @@ More detailed instructions and more mods can be found in the [VRChat Modding Gro
 - [PrivateInstanceIcon](#privateinstanceicon)
 - [ReloadAvatars](#reloadavatars)
 - [RememberMe](#rememberme)
-- [SelectYourself](#selectyourself)
 - [TriggerESP](#triggeresp)
 - [UserHistory](#userhistory)
 - [UserInfoExtensions](#userinfoextensions)
@@ -147,14 +146,6 @@ The buttons can each be toggled on and off using UIX
 
 Adds a "Remember Me" check-box to the Login screen.
 When "Remember Me" is checked off it will auto-fill the last saved VRChat Credentials.
-
-## SelectYourself
-
-[![Requires VRChatUtilityKit][VRCUKRequiredBadge]][VRCUKLink]
-[![Requires UIExpansionKit][UIXRequiredBadge]][UIXLink]
-
-Adds a button that allows you to select yourself.
-The button can be toggled on and off using UIX.
 
 ## TriggerESP
 
