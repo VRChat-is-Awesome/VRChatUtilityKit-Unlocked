@@ -29,8 +29,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RememberMe", "RememberMe\Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VRChatUtilityKit", "VRChatUtilityKit\VRChatUtilityKit.csproj", "{EB4D5B4E-1483-4566-A49F-A12A084E7283}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SelectYourself", "SelectYourself\SelectYourself.csproj", "{5A6677FC-A343-4271-BEE6-E5106E4AA341}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChairExitController", "ChairExitController\ChairExitController.csproj", "{C44CEA6D-AAAC-4C6F-B231-C9E6040583E5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserHistory", "UserHistory\UserHistory.csproj", "{805A672C-8C37-4240-9F03-0F5371708E04}"
