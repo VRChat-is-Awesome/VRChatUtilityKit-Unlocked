@@ -11,7 +11,7 @@ using VRC.SDKBase;
 using VRC.Udon;
 using VRChatUtilityKit.Utilities;
 
-[assembly: MelonInfo(typeof(TriggerESP.TriggerESPMod), "TriggerESP", "1.0.4", "Sleepers", "https://github.com/SleepyVRC/Mods")]
+[assembly: MelonInfo(typeof(TriggerESP.TriggerESPMod), "TriggerESP", "1.0.5", "Sleepers", "https://github.com/SleepyVRC/Mods")]
 [assembly: MelonGame("VRChat", "VRChat")]
 
 namespace TriggerESP
