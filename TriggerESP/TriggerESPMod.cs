@@ -11,7 +11,7 @@ using VRC.SDKBase;
 using VRC.Udon;
 using VRChatUtilityKit.Utilities;
 
-[assembly: MelonInfo(typeof(TriggerESP.TriggerESPMod), "TriggerESP", "1.0.4", "Sleepers", "https://github.com/SleepyVRC/Mods")]
+[assembly: MelonInfo(typeof(TriggerESP.TriggerESPMod), "TriggerESP", "1.0.5", "Sleepers", "https://github.com/SleepyVRC/Mods")]
 [assembly: MelonGame("VRChat", "VRChat")]
 
 namespace TriggerESP
@@ -20,6 +20,7 @@ namespace TriggerESP
     public class TriggerESPMod : MelonMod
     {
 		internal static bool isOn;
+        internal static bool shouldAddComponents = false;
 
 		internal static TriggerESPRenderManager controller;
 
@@ -84,15 +85,12 @@ namespace TriggerESP
 
 		private void OnEmmWorldCheckCompleted(bool areRiskyFuncsAllowed)
         {
-			if (areRiskyFuncsAllowed)
-				MelonCoroutines.Start(WaitForSceneInit());
+            shouldAddComponents = areRiskyFuncsAllowed;
         }
 
-		private IEnumerator WaitForSceneInit()
+		private static void AddColliders()
         {
-			while (sceneName == null)
-				yield return null;
-
+            shouldAddComponents = false;
 			foreach (Collider collider in Resources.FindObjectsOfTypeAll<Collider>())
 			{
 				if (collider.gameObject.scene.name == sceneName && collider.GetComponent<VRC_Interactable>() != null)
@@ -112,7 +110,7 @@ namespace TriggerESP
 			foreach (Selectable selectable in Resources.FindObjectsOfTypeAll<Selectable>())
 				if (selectable.gameObject.scene.name == sceneName && selectable.transform.TryCast<RectTransform>() != null)
 					AddESPComponent(selectable);
-		}
+        }
 
 		public override void OnSceneWasInitialized(int buildIndex, string sceneName)
 		{
@@ -145,6 +143,9 @@ namespace TriggerESP
 		}
 
 
-        private static void OnESPToggle() => isOn = !isOn;
+        private static void OnESPToggle() {
+            if (shouldAddComponents) AddColliders();
+            isOn = !isOn;
+        }
 	}
 }
