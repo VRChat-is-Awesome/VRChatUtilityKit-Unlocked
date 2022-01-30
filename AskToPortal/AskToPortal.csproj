@@ -32,5 +32,8 @@
         <Reference Include="VRChatUtilityKit">
             <HintPath>$(VRChatPath)Mods\VRChatUtilityKit.dll</HintPath>
         </Reference>
+        <Reference Include="WorldPredownload">
+            <HintPath>$(VRChatPath)Mods\WorldPredownload.dll</HintPath>
+        </Reference>
     </ItemGroup>
 </Project>

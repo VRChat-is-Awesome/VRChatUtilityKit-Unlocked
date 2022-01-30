@@ -11,6 +11,7 @@ using VRChatUtilityKit.Utilities;
 [assembly: MelonInfo(typeof(AskToPortal.AskToPortalMod), "AskToPortal", "3.1.1", "Sleepers", "https://github.com/SleepyVRC/Mods")]
 [assembly: MelonGame("VRChat", "VRChat")]
 [assembly: MelonIncompatibleAssemblies(new string[1] { "Portal Confirmation" })]
+[assembly: MelonAdditionalDependencies("WorldPredownload")]
 
 namespace AskToPortal
 {

@@ -1,5 +1,5 @@
-﻿using MelonLoader;
-using System.Reflection;
+﻿using System.Reflection;
+using MelonLoader;
 
 namespace AskToPortal
 {
@@ -14,6 +14,7 @@ namespace AskToPortal
         public static MelonPreferences_Entry<bool> autoAcceptSelf;
         public static MelonPreferences_Entry<bool> onlyPortalDrop;
         public static MelonPreferences_Entry<bool> startOnDetailed;
+        public static MelonPreferences_Entry<bool> predownloadInsteadOfJoin;
 
         public static void RegisterSettings()
         {
@@ -26,6 +27,7 @@ namespace AskToPortal
             autoAcceptSelf = MelonPreferences.CreateEntry(catagory, nameof(autoAcceptSelf), true, "Automatically enter your own portals");
             onlyPortalDrop = MelonPreferences.CreateEntry(catagory, nameof(onlyPortalDrop), false, "Only ask if a portal dropper is detected");
             startOnDetailed = MelonPreferences.CreateEntry(catagory, nameof(startOnDetailed), false, "Open the detailed page when entering a portal");
+            predownloadInsteadOfJoin = MelonPreferences.CreateEntry(catagory, nameof(predownloadInsteadOfJoin), false, "Predownload worlds instead of joining them if worldpredownload is installed.");
         }
     }
 }

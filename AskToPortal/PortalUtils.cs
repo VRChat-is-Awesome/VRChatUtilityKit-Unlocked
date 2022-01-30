@@ -28,7 +28,11 @@ namespace AskToPortal
         }
         public static void EnterPortal(PortalInternal portalInternal, APIUser dropper, string worldId, string roomId)
         {
-            if (portalInternal == null)
+            if (AskToPortalSettings.predownloadInsteadOfJoin.Value) {
+                typeof(WorldPredownload.DownloadManager.WorldDownloadManager)
+                .GetMethod("DownloadWorld", BindingFlags.NonPublic | BindingFlags.Static)
+                .Invoke(typeof(WorldPredownload.DownloadManager.WorldDownloadManager), new object[] { portalInternal.field_Private_ApiWorld_0 });
+            } else if (portalInternal == null)
             {
                 object currentPortalInfo = Activator.CreateInstance(portalInfo);
                 currentPortalInfo.GetType().GetProperty($"field_Public_{portalInfoEnum.Name}_0").SetValue(currentPortalInfo, 3); //I hate reflection
