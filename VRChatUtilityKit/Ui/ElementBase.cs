@@ -40,7 +40,11 @@ namespace VRChatUtilityKit.Ui
         protected ElementBase(Transform parent, GameObject template, string gameObjectName)
         {
             if (parent != null)
+            {
                 gameObject = Object.Instantiate(template, parent);
+                if(parent.name == "QMParent")
+                    gameObject.transform.SetSiblingIndex(parent.GetSiblingIndex());
+            }
             else
                 gameObject = Object.Instantiate(template, UiManager.tempUIParent);
             _id = gameObject.GetInstanceID();
