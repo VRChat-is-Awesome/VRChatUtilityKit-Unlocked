@@ -83,8 +83,13 @@ namespace AskToPortal
                 return true;
 
             string roomId = __instance.field_Private_String_4;
-            string worldId = __instance.field_Private_ApiWorld_0.id;
+            string worldId = __instance.field_Private_ApiWorld_0?.id;
             int roomPop = __instance.field_Private_Int32_0;
+
+            if (worldId == null) {
+                Instance.LoggerInstance.Warning("Tried to enter a portal without a worldID.");
+                return false;
+            }
 
             RoomInfo roomInfo;
             if (photonView == null)
