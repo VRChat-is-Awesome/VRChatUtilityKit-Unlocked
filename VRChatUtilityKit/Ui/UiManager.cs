@@ -137,7 +137,7 @@ namespace VRChatUtilityKit.Ui
             _closeMenuMethod = typeof(UIManagerImpl).GetMethods()
                 .First(method => method.Name.StartsWith("Method_Public_Virtual_Final_New_Void_") && XrefScanner.XrefScan(method).Count() == 2);
             _closeQuickMenuMethod = typeof(UIManagerImpl).GetMethods()
-                .First(method => method.Name.StartsWith("Method_Public_Void_Boolean_") && XrefUtils.CheckUsedBy(method, _closeMenuMethod.Name));
+                .First(method => method.Name.StartsWith("Method_Public_Void_Boolean_") && XrefUtils.CheckUsing(method, "Method_Private_Void_") && !XrefUtils.CheckUsing(method, "SetActive"));
             VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(_closeQuickMenuMethod, null, new HarmonyMethod(typeof(UiManager).GetMethod(nameof(OnQuickMenuClose), BindingFlags.NonPublic | BindingFlags.Static)));
 
             _openQuickMenuMethod = typeof(UIManagerImpl).GetMethods()
