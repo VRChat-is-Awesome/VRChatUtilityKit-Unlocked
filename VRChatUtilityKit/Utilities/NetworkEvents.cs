@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
+using Il2CppSystem.Collections;
 using UnityEngine;
 using VRC;
 using VRC.Core;
@@ -92,7 +93,7 @@ namespace VRChatUtilityKit.Utilities
         /// Calls when the setup flags of a VRCPlayer is received from photon.
         /// The int is actually the enum "VRCPlayer.EnumNPrivateSealedvaViMoVRStShAvUsFa9vUnique" at the time of writing.
         /// </summary>
-        public static event Action<VRCPlayer, int> OnSetupFlagsReceived;
+        public static event Action<VRCPlayer, Hashtable> OnSetupFlagsReceived;
 
         /// <summary>
         /// Calls when the local user changes whether to show their social rank.
@@ -110,7 +111,7 @@ namespace VRChatUtilityKit.Utilities
         public static event Action<string, ApiPlayerModeration.ModerationType> OnPlayerModerationRemoved;
 
         private static void OnRoomLeave() => OnRoomLeft?.DelegateSafeInvoke();
-        
+
         private static void OnRoomJoin() => OnRoomJoined?.DelegateSafeInvoke();
 
         private static void OnFriend(APIUser __0)
@@ -158,12 +159,14 @@ namespace VRChatUtilityKit.Utilities
         {
             OnAvatarDownloadProgressed?.DelegateSafeInvoke(__instance, __0, __1);
         }
-        private static void OnSetupFlagsReceive(VRCPlayer __instance, object __result)
+        private static void OnSetupFlagsReceive(VRCPlayer __instance, Hashtable param_1)
         {
-            if (__result == null)
+            if (param_1 == null)
                 return;
 
-            OnSetupFlagsReceived?.DelegateSafeInvoke(__instance, __result);
+            VRChatUtilityKitMod.Instance.LoggerInstance.Msg(param_1["showSocialRank"].ToString());
+
+            OnSetupFlagsReceived?.DelegateSafeInvoke(__instance, param_1);
         }
         private static void OnShowSocialRankChange()
         {
@@ -209,15 +212,15 @@ namespace VRChatUtilityKit.Utilities
             foreach (MethodInfo method in typeof(ModerationManager).GetMethods().Where(mb => mb.Name.StartsWith("Method_Private_Void_String_ModerationType_Action_1_ApiPlayerModeration_Action_1_String_")))
                 VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(method, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnPlayerModerationSend2), BindingFlags.NonPublic | BindingFlags.Static)));
             VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(ModerationManager).GetMethod("Method_Private_Void_String_ModerationType_0"), new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnPlayerModerationRemove), BindingFlags.NonPublic | BindingFlags.Static)));
-            
+
 
             foreach (MethodInfo method in typeof(AvatarLoadingBar).GetMethods().Where(mb => mb.Name.Contains("Method_Public_Void_Single_Int64_")))
                 VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(method, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnAvatarDownloadProgress), BindingFlags.NonPublic | BindingFlags.Static)));
 
             VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(FriendsListManager).GetMethod("Method_Private_Void_String_0"), new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnUnfriend), BindingFlags.NonPublic | BindingFlags.Static)));
 
-            //MethodInfo onSetupFlagsReceivedMethod = typeof(VRCPlayer).GetMethods().First(mi => mi.Name.StartsWith("Method_Public_Static_get_Hashtable_"));
-            //VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(onSetupFlagsReceivedMethod, null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnSetupFlagsReceive), BindingFlags.NonPublic | BindingFlags.Static)));
+            MethodInfo onSetupFlagsReceivedMethod = typeof(VRCPlayer).GetMethods().First(mi => mi.Name.StartsWith("Method_Public_Void_Hashtable_Boolean_"));
+            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(onSetupFlagsReceivedMethod, null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnSetupFlagsReceive), BindingFlags.NonPublic | BindingFlags.Static)));
 
             foreach (MethodInfo socialRankChangeMethod in typeof(ProfileWingMenu).GetMethods().Where(method => method.Name.StartsWith("Method_Private_Void_Boolean_")))
                 VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(socialRankChangeMethod, null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnShowSocialRankChange), BindingFlags.NonPublic | BindingFlags.Static)));
