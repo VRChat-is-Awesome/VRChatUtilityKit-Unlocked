@@ -95,6 +95,8 @@ namespace VRChatUtilityKit.Ui
 
         private static MethodInfo _closeMenuMethod;
         private static MethodInfo _closeQuickMenuMethod;
+        private static MethodInfo _onQuickMenuClosedMethod;
+        private static MethodInfo _onQuickMenuOpenedMethod;
 
         private static PropertyInfo _quickMenuEnumProperty;
         /// <summary>
@@ -137,21 +139,17 @@ namespace VRChatUtilityKit.Ui
             _closeMenuMethod = typeof(UIManagerImpl).GetMethods()
                 .First(method => method.Name.StartsWith("Method_Public_Virtual_Final_New_Void_") && XrefScanner.XrefScan(method).Count() == 2);
             _closeQuickMenuMethod = typeof(UIManagerImpl).GetMethods()
-                .First(method => method.Name.StartsWith("Method_Public_Void_Boolean_") && XrefUtils.CheckUsing(method, "Method_Private_Void_") && !XrefUtils.CheckUsing(method, "SetActive"));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(_closeQuickMenuMethod, null, new HarmonyMethod(typeof(UiManager).GetMethod(nameof(OnQuickMenuClose), BindingFlags.NonPublic | BindingFlags.Static)));
+                .First(method => method.Name.StartsWith("Method_Public_Void_Boolean_") && XrefUtils.CheckUsing(method, "Method_Private_Void_") && XrefUtils.CheckUsing(method, "SetActive"));
+            _onQuickMenuClosedMethod = typeof(UIManagerImpl).GetMethods()
+                .First(method => method.Name.StartsWith("Method_Private_Void_") && !method.Name.Contains("_PDM") && XrefUtils.CheckUsedBy(method, _closeQuickMenuMethod.Name));
+            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(_onQuickMenuClosedMethod, null, new HarmonyMethod(typeof(UiManager).GetMethod(nameof(OnQuickMenuClose), BindingFlags.NonPublic | BindingFlags.Static)));
 
             _openQuickMenuMethod = typeof(UIManagerImpl).GetMethods()
                 .First(method => method.Name.StartsWith("Method_Public_Void_Boolean_") && method.Name.Length <= 29 && XrefUtils.CheckUsing(method, "Method_Private_Void_") && !XrefUtils.CheckUsing(method, "SetActive"));
-
             _openQuickMenuPageMethod = typeof(UIManagerImpl).GetMethods()
                 .First(method => method.Name.StartsWith("Method_Public_Virtual_Final_New_Void_String_") && XrefUtils.CheckUsing(method, _openQuickMenuMethod.Name, _openQuickMenuMethod.DeclaringType));
-
-            // Patching the other method doesn't work for some reason you have to patch this
-            MethodInfo _onQuickMenuOpenedMethod = typeof(UIManagerImpl).GetMethods()
+            _onQuickMenuOpenedMethod = typeof(UIManagerImpl).GetMethods()
                 .First(method => method.Name.StartsWith("Method_Private_Void_Boolean_") && !method.Name.Contains("_PDM_") && XrefUtils.CheckUsedBy(method, _openQuickMenuMethod.Name));
-
-            /* MethodInfo _onQuickMenuOpenedMethod = typeof(UIManagerImpl).GetMethods()
-                .First(method => method.Name.StartsWith("Method_Private_Void_Boolean_") && !method.Name.Contains("_PDM_"));*/
             VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(_onQuickMenuOpenedMethod, null, new HarmonyMethod(typeof(UiManager).GetMethod(nameof(OnQuickMenuOpen), BindingFlags.NonPublic | BindingFlags.Static)));
 
             _popupV2Small = typeof(VRCUiPopupManager).GetMethods()
@@ -405,7 +403,7 @@ namespace VRChatUtilityKit.Ui
         /// </summary>
         /// <param name="groupGameObject">The GameObject of the button group. VRChat ones generally end with the prefix "Buttons_".</param>
         /// <param name="button">The button to add to the group</param>
-        public static void AddButtonToExistingGroup(GameObject groupGameObject, SingleButton button) 
+        public static void AddButtonToExistingGroup(GameObject groupGameObject, SingleButton button)
         {
             button.gameObject.transform.SetParent(groupGameObject.transform);
         }
