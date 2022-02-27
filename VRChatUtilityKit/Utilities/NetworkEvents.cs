@@ -164,7 +164,7 @@ namespace VRChatUtilityKit.Utilities
             if (param_1 == null)
                 return;
 
-            VRChatUtilityKitMod.Instance.LoggerInstance.Msg(param_1["showSocialRank"].ToString());
+            //VRChatUtilityKitMod.Instance.LoggerInstance.Msg(param_1["showSocialRank"].ToString());
 
             OnSetupFlagsReceived?.DelegateSafeInvoke(__instance, param_1);
         }
