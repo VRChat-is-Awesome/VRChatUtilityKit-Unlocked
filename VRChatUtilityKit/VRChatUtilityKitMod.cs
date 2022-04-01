@@ -5,7 +5,7 @@ using MelonLoader;
 using VRChatUtilityKit.Ui;
 using VRChatUtilityKit.Utilities;
 
-[assembly: MelonInfo(typeof(VRChatUtilityKit.VRChatUtilityKitMod), "VRChatUtilityKit", "1.4.1", "Sleepers", "https://github.com/SleepyVRC/Mods")]
+[assembly: MelonInfo(typeof(VRChatUtilityKit.VRChatUtilityKitMod), "VRChatUtilityKit", "1.4.2", "Sleepers", "https://github.com/SleepyVRC/Mods")]
 [assembly: MelonGame("VRChat", "VRChat")]
 [assembly: MelonPriority(-100)]
 
