@@ -26,6 +26,9 @@
         <Reference Include="MelonLoader">
             <HintPath>$(VRChatPath)MelonLoader\MelonLoader.dll</HintPath>
         </Reference>
+        <Reference Include="HarmonyLib">
+            <HintPath>$(VRChatPath)MelonLoader\0Harmony.dll</HintPath>
+        </Reference>
         <Reference Include="Il2Cppmscorlib">
             <HintPath>$(VRChatPath)MelonLoader\Managed\Il2Cppmscorlib.dll</HintPath>
         </Reference>
