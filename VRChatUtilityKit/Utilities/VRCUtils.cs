@@ -144,30 +144,38 @@ namespace VRChatUtilityKit.Utilities
         private static void EndEmmCheck(IAsyncResult asyncResult)
         {
             Tuple<ApiWorld, HttpWebRequest> state = (Tuple<ApiWorld, HttpWebRequest>)asyncResult.AsyncState;
-            string result;
-            using (WebResponse response = state.Item2.EndGetResponse(asyncResult))
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
-                result = reader.ReadToEnd();
-
-            if (!string.IsNullOrWhiteSpace(result))
+            try
             {
-                switch (result)
+                string result;
+                using (WebResponse response = state.Item2.EndGetResponse(asyncResult))
+                using (Stream stream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
+                    result = reader.ReadToEnd();
+
+                if (!string.IsNullOrWhiteSpace(result))
                 {
-                    case "allowed":
-                        VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World allowed to use risky functions");
-                        AreRiskyFunctionsAllowed = true;
-                        return;
+                    switch (result)
+                    {
+                        case "allowed":
+                            VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World allowed to use risky functions");
+                            AreRiskyFunctionsAllowed = true;
+                            return;
 
-                    case "denied":
-                        VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World NOT allowed to use risky functions");
-                        AreRiskyFunctionsAllowed = false;
-                        return;
+                        case "denied":
+                            VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World NOT allowed to use risky functions");
+                            AreRiskyFunctionsAllowed = false;
+                            return;
+                    }
                 }
-            }
 
-            // Fuck it i cant be fucked right now
-            AsyncUtils._toMainThreadQueue.Enqueue(new Action(() => CheckWorld(state.Item1)));
+                // Fuck it i cant be fucked right now
+                AsyncUtils._toMainThreadQueue.Enqueue(new Action(() => CheckWorld(state.Item1)));
+            }
+            catch (Exception e)
+            {
+                VRChatUtilityKitMod.Instance.LoggerInstance.Error("Error parsing response from emmVRC, falling back to GameObject and Tags");
+                AsyncUtils._toMainThreadQueue.Enqueue(new Action(() => CheckWorld(state.Item1)));
+            }
         }
 
         private static void CheckWorld(ApiWorld world)
