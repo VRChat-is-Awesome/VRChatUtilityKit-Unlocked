@@ -110,7 +110,7 @@ namespace VRChatUtilityKit.Utilities
         {
             _isUIXPresent = MelonHandler.Mods.Any(x => x.Info.Name.Equals("UI Expansion Kit"));
 
-            NetworkEvents.OnInstanceChanged += new Action<ApiWorld, ApiWorldInstance>((world, instance) => StartRiskyCheck(world));
+            NetworkEvents.OnInstanceChanged += new Action<ApiWorld, ApiWorldInstance>((world, instance) => StartEmmCheck(world));
             MelonCoroutines.Start(UiInitCoroutine());
 
             _loadAvatarMethod = typeof(VRCPlayer).GetMethods().First(mi => mi.Name.StartsWith("Method_Private_Void_Boolean_") && mi.Name.Length < 31 && mi.GetParameters().Any(pi => pi.IsOptional) && XrefUtils.CheckUsedBy(mi, "ReloadAvatarNetworkedRPC"));
@@ -133,8 +133,44 @@ namespace VRChatUtilityKit.Utilities
             _quickMenuInstance = GameObject.Find("UserInterface").transform.Find("Canvas_QuickMenu(Clone)").GetComponent<VRC.UI.Elements.QuickMenu>();
         }
 
-        // Credit to the og, Psychloor's PlayerRotator (https://github.com/Psychloor/PlayerRotater)
-        private static void StartRiskyCheck(ApiWorld world)
+        // Completely stolen from Psychloor's PlayerRotator (https://github.com/Psychloor/PlayerRotater)
+        private static void StartEmmCheck(ApiWorld world)
+        {
+            // Check if black/whitelisted from emmVRC - thanks Emilia and the rest of emmVRC Staff
+            HttpWebRequest request = WebRequest.CreateHttp($"https://dl.emmvrc.com/riskyfuncs.php?worldid={world.id}");
+            request.BeginGetResponse(new AsyncCallback(EndEmmCheck), new Tuple<ApiWorld, HttpWebRequest>(world, request));
+        }
+
+        private static void EndEmmCheck(IAsyncResult asyncResult)
+        {
+            Tuple<ApiWorld, HttpWebRequest> state = (Tuple<ApiWorld, HttpWebRequest>)asyncResult.AsyncState;
+            string result;
+            using (WebResponse response = state.Item2.EndGetResponse(asyncResult))
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+                result = reader.ReadToEnd();
+
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                switch (result)
+                {
+                    case "allowed":
+                        VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World allowed to use risky functions");
+                        AreRiskyFunctionsAllowed = true;
+                        return;
+
+                    case "denied":
+                        VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World NOT allowed to use risky functions");
+                        AreRiskyFunctionsAllowed = false;
+                        return;
+                }
+            }
+
+            // Fuck it i cant be fucked right now
+            AsyncUtils._toMainThreadQueue.Enqueue(new Action(() => CheckWorld(state.Item1)));
+        }
+
+        private static void CheckWorld(ApiWorld world)
         {
             // no result from server or they're currently down
             // Check tags/GameObjects then.
