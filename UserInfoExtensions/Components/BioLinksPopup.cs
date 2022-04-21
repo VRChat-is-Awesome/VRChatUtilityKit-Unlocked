@@ -55,15 +55,19 @@ namespace UserInfoExtensions.Components
 
                 stream = new MemoryStream();
                 response.GetResponseStream().CopyTo(stream);
+
+                Texture2D tex = new Texture2D(2, 2);
+                ImageConversion.LoadImage(tex, stream.ToArray());
+                icons[index].texture = tex;
+            }
+            catch
+            {
+                UserInfoExtensionsMod.Instance.LoggerInstance.Warning("Downloading favicon failed for " + BioButtons.bioLinks[index]?.Host);
             }
             finally
             {
                 await AsyncUtils.YieldToMainThread();
             }
-
-            Texture2D tex = new Texture2D(2, 2);
-            ImageConversion.LoadImage(tex, stream.ToArray());
-            icons[index].texture = tex;
         }
 
         public void OnOpenLink()
