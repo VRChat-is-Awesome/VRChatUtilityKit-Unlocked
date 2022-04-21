@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
@@ -199,31 +200,96 @@ namespace VRChatUtilityKit.Utilities
             field0.field_Private_HashSet_1_UnityAction_1_T_0.Add(new Action<Player>((player) => { if (player != null) OnPlayerJoined?.DelegateSafeInvoke(player); }));
             field1.field_Private_HashSet_1_UnityAction_1_T_0.Add(new Action<Player>((player) => { if (player != null) OnPlayerLeft?.DelegateSafeInvoke(player); }));
 
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(APIUser).GetMethod("LocalAddFriend"), null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnFriend), BindingFlags.NonPublic | BindingFlags.Static)));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(APIUser).GetMethod("UnfriendUser"), null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnUnfriend), BindingFlags.NonPublic | BindingFlags.Static)));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(RoomManager).GetMethod("Method_Public_Static_Boolean_ApiWorld_ApiWorldInstance_String_Int32_0"), null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnInstanceChange), BindingFlags.NonPublic | BindingFlags.Static)));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(NetworkManager).GetMethod("OnMasterClientSwitched"), new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnMasterChange), BindingFlags.NonPublic | BindingFlags.Static)));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(NetworkManager).GetMethod("OnLeftRoom"), new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnRoomLeave), BindingFlags.NonPublic | BindingFlags.Static)));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(NetworkManager).GetMethod("OnJoinedRoom"), new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnRoomJoin), BindingFlags.NonPublic | BindingFlags.Static)));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(VRCAvatarManager).GetMethods().First(mb => mb.Name.StartsWith("Method_Private_Boolean_GameObject_String_Single_")), null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnAvatarChange), BindingFlags.NonPublic | BindingFlags.Static)));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(VRCPlayer).GetMethods().First(mb => mb.Name.StartsWith("Awake")), null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnPlayerAwake), BindingFlags.NonPublic | BindingFlags.Static)));
-            foreach (MethodInfo method in typeof(ModerationManager).GetMethods().Where(mb => mb.Name.StartsWith("Method_Private_ApiPlayerModeration_String_String_ModerationType_")))
-                VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(method, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnPlayerModerationSend1), BindingFlags.NonPublic | BindingFlags.Static)));
-            foreach (MethodInfo method in typeof(ModerationManager).GetMethods().Where(mb => mb.Name.StartsWith("Method_Private_Void_String_ModerationType_Action_1_ApiPlayerModeration_Action_1_String_")))
-                VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(method, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnPlayerModerationSend2), BindingFlags.NonPublic | BindingFlags.Static)));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(ModerationManager).GetMethod("Method_Private_Void_String_ModerationType_0"), new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnPlayerModerationRemove), BindingFlags.NonPublic | BindingFlags.Static)));
+            List<Exception> exceptions = new();
 
+            // Passing the original as a function so that exceptions when getting it get handled here too.
+            void prefixMultiple(Func<IEnumerable<MethodBase>> getOriginals, string staticMethodName)
+            {
+                try
+                {
+                    HarmonyMethod prefix = new(typeof(NetworkEvents).GetMethod(staticMethodName, BindingFlags.NonPublic | BindingFlags.Static));
+                    foreach (MethodBase method in getOriginals())
+                    {
+                        VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(method, prefix: prefix);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(new Exception($"Prefix for {staticMethodName} failed: ", ex));
+                }
+            }
 
-            foreach (MethodInfo method in typeof(AvatarLoadingBar).GetMethods().Where(mb => mb.Name.Contains("Method_Public_Void_Single_Int64_")))
-                VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(method, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnAvatarDownloadProgress), BindingFlags.NonPublic | BindingFlags.Static)));
+            void prefix(Func<MethodBase> getOriginal, string staticMethodName)
+            {
+                prefixMultiple(() => new[] { getOriginal() }, staticMethodName);
+            }
 
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(typeof(FriendsListManager).GetMethod("Method_Private_Void_String_0"), new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnUnfriend), BindingFlags.NonPublic | BindingFlags.Static)));
+            void postfixMultiple(Func<IEnumerable<MethodBase>> getOriginals, string staticMethodName)
+            {
+                try
+                {
+                    HarmonyMethod postfix = new(typeof(NetworkEvents).GetMethod(staticMethodName, BindingFlags.NonPublic | BindingFlags.Static));
+                    foreach (MethodBase method in getOriginals())
+                    {
+                        VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(method, postfix: postfix);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(new Exception($"Postfix for {staticMethodName} failed: ", ex));
+                }
+            }
 
-            MethodInfo onSetupFlagsReceivedMethod = typeof(VRCPlayer).GetMethods().First(mi => mi.Name.StartsWith("Method_Public_Void_Hashtable_Boolean_"));
-            VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(onSetupFlagsReceivedMethod, null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnSetupFlagsReceive), BindingFlags.NonPublic | BindingFlags.Static)));
+            void postfix(Func<MethodBase> getOriginal, string staticMethodName)
+            {
+                postfixMultiple(() => new[] { getOriginal() }, staticMethodName);
+            }
 
-            foreach (MethodInfo socialRankChangeMethod in typeof(ProfileWingMenu).GetMethods().Where(method => method.Name.StartsWith("Method_Private_Void_Boolean_")))
-                VRChatUtilityKitMod.Instance.HarmonyInstance.Patch(socialRankChangeMethod, null, new HarmonyMethod(typeof(NetworkEvents).GetMethod(nameof(OnShowSocialRankChange), BindingFlags.NonPublic | BindingFlags.Static)));
+            postfix(() => typeof(APIUser).GetMethod("LocalAddFriend"), nameof(OnFriend));
+            postfix(() => typeof(APIUser).GetMethod("UnfriendUser"), nameof(OnUnfriend));
+            postfix(
+                () => typeof(RoomManager).GetMethod("Method_Public_Static_Boolean_ApiWorld_ApiWorldInstance_String_Int32_0"),
+                nameof(OnInstanceChange)
+            );
+            prefix(() => typeof(NetworkManager).GetMethod("OnMasterClientSwitched"), nameof(OnMasterChange));
+            prefix(() => typeof(NetworkManager).GetMethod("OnLeftRoom"), nameof(OnRoomLeave));
+            prefix(() => typeof(NetworkManager).GetMethod("OnJoinedRoom"), nameof(OnRoomJoin));
+            postfix(
+                () => typeof(VRCAvatarManager).GetMethods().First(mb => mb.Name.StartsWith("Method_Private_Boolean_GameObject_String_Single_")),
+                nameof(OnAvatarChange)
+            );
+            postfix(() => typeof(VRCPlayer).GetMethods().First(mb => mb.Name.StartsWith("Awake")), nameof(OnPlayerAwake));
+            prefixMultiple(
+                () => typeof(ModerationManager).GetMethods().Where(mb => mb.Name.StartsWith("Method_Private_ApiPlayerModeration_String_String_ModerationType_")),
+                nameof(OnPlayerModerationSend1)
+            );
+            prefixMultiple(
+                () => typeof(ModerationManager).GetMethods().Where(mb => mb.Name.StartsWith("Method_Private_Void_String_ModerationType_Action_1_ApiPlayerModeration_Action_1_String_")),
+                nameof(OnPlayerModerationSend2)
+            );
+            prefix(() => typeof(ModerationManager).GetMethod("Method_Private_Void_String_ModerationType_0"), nameof(OnPlayerModerationRemove));
+            prefixMultiple(
+                () => typeof(AvatarLoadingBar).GetMethods().Where(mb => mb.Name.Contains("Method_Public_Void_Single_Int64_")),
+                nameof(OnAvatarDownloadProgress)
+            );
+            prefix(() => typeof(FriendsListManager).GetMethod("Method_Private_Void_String_0"), nameof(OnUnfriend));
+            postfix(
+                () => typeof(VRCPlayer).GetMethods().First(mi => mi.Name.StartsWith("Method_Public_Void_Hashtable_Boolean_")),
+                nameof(OnSetupFlagsReceive)
+            );
+            postfixMultiple(
+                () => typeof(ProfileWingMenu).GetMethods().Where(method => method.Name.StartsWith("Method_Private_Void_Boolean_")),
+                nameof(OnShowSocialRankChange)
+            );
+
+            if (exceptions.Count == 1)
+            {
+                throw exceptions.First();
+            }
+            else if (exceptions.Count > 1)
+            {
+                throw new AggregateException("Multiple Errors Occured", exceptions);
+            }
         }
     }
 }
