@@ -171,7 +171,7 @@ namespace VRChatUtilityKit.Utilities
                 // Fuck it i cant be fucked right now
                 AsyncUtils._toMainThreadQueue.Enqueue(new Action(() => CheckWorld(state.Item1)));
             }
-            catch (Exception e)
+            catch
             {
                 VRChatUtilityKitMod.Instance.LoggerInstance.Error("Error parsing response from emmVRC, falling back to GameObject and Tags");
                 AsyncUtils._toMainThreadQueue.Enqueue(new Action(() => CheckWorld(state.Item1)));
