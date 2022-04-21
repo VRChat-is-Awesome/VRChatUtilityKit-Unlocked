@@ -5,7 +5,7 @@ using UIExpansionKit.API.Controls;
 using UnityEngine;
 using VRChatUtilityKit.Utilities;
 
-[assembly: MelonInfo(typeof(ReloadAvatars.ReloadAvatarsMod), "ReloadAvatars", "1.1.1", "Sleepers", "https://github.com/SleepyVRC/Mods")]
+[assembly: MelonInfo(typeof(ReloadAvatars.ReloadAvatarsMod), "ReloadAvatars", "1.1.2", "Sleepers", "https://github.com/SleepyVRC/Mods")]
 [assembly: MelonGame("VRChat", "VRChat")]
 
 namespace ReloadAvatars

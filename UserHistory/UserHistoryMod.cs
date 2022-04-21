@@ -2,7 +2,7 @@
 using MelonLoader;
 using VRChatUtilityKit.Utilities;
 
-[assembly: MelonInfo(typeof(UserHistory.UserHistoryMod), "UserHistory", "1.1.1", "Sleepers", "https://github.com/SleepyVRC/Mods")]
+[assembly: MelonInfo(typeof(UserHistory.UserHistoryMod), "UserHistory", "1.1.2", "Sleepers", "https://github.com/SleepyVRC/Mods")]
 [assembly: MelonGame("VRChat", "VRChat")]
 [assembly: MelonAdditionalDependencies("UIExpansionKit")]
 
