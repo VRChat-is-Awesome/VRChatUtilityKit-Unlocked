@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
-using BindingExtensions = ObjectPublicAbstractSealedVoGa9326CoAc63Ac26CoUnique;
+using VRC.DataModel.Core;
 
 namespace VRChatUtilityKit.Ui
 {
