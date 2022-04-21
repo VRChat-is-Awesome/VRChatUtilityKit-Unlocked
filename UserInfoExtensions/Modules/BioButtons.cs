@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MelonLoader;
+using UIExpansionKit.API.Controls;
 using UnhollowerRuntimeLib;
 using UnityEngine;
 using UserInfoExtensions.Components;
@@ -12,8 +13,8 @@ namespace UserInfoExtensions.Modules
 {
     public class BioButtons : ModuleBase
     {
-        public static GameObject bioLinksButtonGameObject;
-        public static GameObject bioLanguagesButtonGameObject;
+        public static IMenuButton bioLinksUixButton;
+        public static IMenuButton bioLanguagesUixButton;
 
         public static MelonPreferences_Entry<bool> BioLinksButton;
         public static MelonPreferences_Entry<bool> BioLanguagesButton;
@@ -59,8 +60,10 @@ namespace UserInfoExtensions.Modules
             BioLinksButton = MelonPreferences.CreateEntry("UserInfoExtensionsSettings", nameof(BioLinksButton), false, "Show \"Bio Links\" button");
             BioLanguagesButton = MelonPreferences.CreateEntry("UserInfoExtensionsSettings", nameof(BioLanguagesButton), false, "Show \"Bio Languages\" button");
 
-            UserInfoExtensionsMod.userDetailsMenu.AddSimpleButton("Bio Links", ShowBioLinksPopup, new Action<GameObject>((gameObject) => { bioLinksButtonGameObject = gameObject; gameObject.SetActive(BioLinksButton.Value); }));
-            UserInfoExtensionsMod.userDetailsMenu.AddSimpleButton("Bio Languages", ShowBioLanguagesPopup, new Action<GameObject>((gameObject) => { bioLanguagesButtonGameObject = gameObject; gameObject.SetActive(BioLanguagesButton.Value); }));
+            bioLinksUixButton = UserInfoExtensionsMod.userDetailsMenu.AddSimpleButton("Bio Links", ShowBioLinksPopup);
+            bioLinksUixButton.SetVisible(BioLinksButton.Value);
+            bioLanguagesUixButton = UserInfoExtensionsMod.userDetailsMenu.AddSimpleButton("Bio Languages", ShowBioLanguagesPopup);
+            bioLanguagesUixButton.SetVisible(BioLanguagesButton.Value);
 
             UserInfoExtensionsMod.menu.AddLabel("Bio Related Things");
             UserInfoExtensionsMod.menu.AddSpacer();
@@ -186,8 +189,8 @@ namespace UserInfoExtensions.Modules
         }
         public override void OnPreferencesSaved()
         {
-            bioLinksButtonGameObject?.SetActive(BioLinksButton.Value);
-            bioLanguagesButtonGameObject?.SetActive(BioLanguagesButton.Value); 
+            bioLinksUixButton?.SetVisible(BioLinksButton.Value);
+            bioLanguagesUixButton?.SetVisible(BioLanguagesButton.Value);
         }
         public override void OnUserInfoOpen()
         {

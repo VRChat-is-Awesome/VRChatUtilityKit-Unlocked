@@ -1,6 +1,7 @@
 ﻿using System;
 using MelonLoader;
 using UIExpansionKit.API;
+using UIExpansionKit.API.Controls;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC;
@@ -13,8 +14,8 @@ namespace CloningBeGone
         public static MelonPreferences_Entry<bool> enableAlwaysOnButton;
         public static MelonPreferences_Entry<bool> enableAlwaysOffButton;
 
-        public static GameObject alwaysOnButton;
-        public static GameObject alwaysOffButton;
+        public static IMenuToggle alwaysOnButton;
+        public static IMenuToggle alwaysOffButton;
 
         private static bool ignore;
 
@@ -28,7 +29,7 @@ namespace CloningBeGone
             UiManager.OnQuickMenuOpened += OnQuickMenuOpened;
 
             ICustomLayoutedMenu menu = ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu);
-            menu.AddToggleButton("Always have cloning on with this avatar", new Action<bool>((state) => 
+            alwaysOnButton = menu.AddToggleButton("Always have cloning on with this avatar", new Action<bool>((state) =>
             {
                 if (ignore)
                     return;
@@ -41,9 +42,10 @@ namespace CloningBeGone
                 if (RoomManager.field_Internal_Static_ApiWorldInstance_0 != null)
                     CloningBeGoneMod.CheckAccessType(RoomManager.field_Internal_Static_ApiWorldInstance_0.type);
                 CloningBeGoneMod.OnAvatarInstantiated(Player.prop_Player_0.prop_ApiAvatar_0);
-            }), null, new Action<GameObject>((gameObject) => { alwaysOnButton = gameObject; alwaysOnButton?.SetActive(enableAlwaysOnButton.Value); }));
+            }), null);
+            alwaysOnButton.SetVisible(enableAlwaysOnButton.Value);
 
-            menu.AddToggleButton("Always have cloning off with this avatar", new Action<bool>((state) =>
+            alwaysOffButton = menu.AddToggleButton("Always have cloning off with this avatar", new Action<bool>((state) =>
             {
                 if (ignore)
                     return;
@@ -56,23 +58,24 @@ namespace CloningBeGone
                 if (RoomManager.field_Internal_Static_ApiWorldInstance_0 != null)
                     CloningBeGoneMod.CheckAccessType(RoomManager.field_Internal_Static_ApiWorldInstance_0.type);
                 CloningBeGoneMod.OnAvatarInstantiated(Player.prop_Player_0.prop_ApiAvatar_0);
-            }), null, new Action<GameObject>((gameObject) => { alwaysOffButton = gameObject; alwaysOffButton?.SetActive(enableAlwaysOnButton.Value); }));
+            }), null);
+            alwaysOffButton.SetVisible(enableAlwaysOnButton.Value);
         }
 
         public static void OnQuickMenuOpened()
         {
             ignore = true;
-            if (alwaysOnButton.active)
-                alwaysOnButton.GetComponent<Toggle>().isOn = CloningBeGoneMod.cloningOnAvatars.Value.Contains(Player.prop_Player_0.prop_ApiAvatar_0.id);
-            if (alwaysOffButton.active)
-                alwaysOffButton.GetComponent<Toggle>().isOn = CloningBeGoneMod.cloningOffAvatars.Value.Contains(Player.prop_Player_0.prop_ApiAvatar_0.id);
+            if (alwaysOnButton.Visible)
+                alwaysOnButton.Selected = CloningBeGoneMod.cloningOnAvatars.Value.Contains(Player.prop_Player_0.prop_ApiAvatar_0.id);
+            if (alwaysOffButton.Visible)
+                alwaysOnButton.Selected = CloningBeGoneMod.cloningOffAvatars.Value.Contains(Player.prop_Player_0.prop_ApiAvatar_0.id);
             ignore = false;
         }
 
         private static void OnPrefChanged()
         {
-            alwaysOnButton?.SetActive(enableAlwaysOnButton.Value);
-            alwaysOffButton?.SetActive(enableAlwaysOffButton.Value);
+            alwaysOnButton?.SetVisible(enableAlwaysOnButton.Value);
+            alwaysOffButton?.SetVisible(enableAlwaysOffButton.Value);
         }
     }
 }

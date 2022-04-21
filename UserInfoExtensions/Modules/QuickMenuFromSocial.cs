@@ -1,5 +1,6 @@
 ﻿using System;
 using MelonLoader;
+using UIExpansionKit.API.Controls;
 using UnityEngine;
 using VRC;
 using VRChatUtilityKit.Ui;
@@ -11,17 +12,18 @@ namespace UserInfoExtensions.Modules
     {
         public static MelonPreferences_Entry<bool> QuickMenuFromSocialButton;
 
-        public static GameObject quickMenuFromSocialButtonGameObject;
+        public static IMenuButton quickMenuFromSocialUixButton;
 
         public override void Init()
         {
             QuickMenuFromSocialButton = MelonPreferences.CreateEntry("UserInfoExtensionsSettings", nameof(QuickMenuFromSocialButton), false, "Show \"To Quick Menu\" button");
-            UserInfoExtensionsMod.userDetailsMenu.AddSimpleButton("To Quick Menu", ToQuickMenu, new Action<GameObject>((gameObject) => { quickMenuFromSocialButtonGameObject = gameObject; gameObject.SetActive(QuickMenuFromSocialButton.Value); }));
+            quickMenuFromSocialUixButton = UserInfoExtensionsMod.userDetailsMenu.AddSimpleButton("To Quick Menu", ToQuickMenu);
+            quickMenuFromSocialUixButton.SetVisible(QuickMenuFromSocialButton.Value);
             UserInfoExtensionsMod.menu.AddSimpleButton("To Quick Menu", ToQuickMenu);
         }
         public override void OnPreferencesSaved()
         {
-            quickMenuFromSocialButtonGameObject?.SetActive(QuickMenuFromSocialButton.Value);
+            quickMenuFromSocialUixButton?.SetVisible(QuickMenuFromSocialButton.Value);
         }
         public static void ToQuickMenu()
         {

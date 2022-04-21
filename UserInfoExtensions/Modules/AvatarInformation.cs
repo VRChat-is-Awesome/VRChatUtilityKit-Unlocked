@@ -1,9 +1,8 @@
 ﻿using System;
 using MelonLoader;
 using UIExpansionKit.API;
+using UIExpansionKit.API.Controls;
 using UIExpansionKit.Components;
-using UnityEngine;
-using UnityEngine.UI;
 using VRC.Core;
 using VRChatUtilityKit.Ui;
 
@@ -12,16 +11,16 @@ namespace UserInfoExtensions.Modules
     class AvatarInformation : ModuleBase
     {
         public static MelonPreferences_Entry<bool> AvatarInfoMenuButton;
-        private static GameObject avatarInfoMenuButtonGameObject;
+        private static IMenuButton avatarInfoMenuUixButton;
 
         public static ICustomShowableLayoutedMenu avatarInfoMenu;
 
-        private static Text authorNameLabel;
-        private static Text avatarNameLabel;
-        private static Text platformLabel;
-        private static Text releaseTypeLabel;
-        private static Text lastUpdatedLabel;
-        private static Text VersionLabel;
+        private static IMenuButton authorNameLabel;
+        private static IMenuButton avatarNameLabel;
+        private static IMenuButton platformLabel;
+        private static IMenuButton releaseTypeLabel;
+        private static IMenuButton lastUpdatedLabel;
+        private static IMenuButton VersionLabel;
 
         private static ApiAvatar avatar;
 
@@ -29,11 +28,11 @@ namespace UserInfoExtensions.Modules
         {
             AvatarInfoMenuButton = MelonPreferences.CreateEntry("UserInfoExtensionsSettings", nameof(AvatarInfoMenuButton), true, "Show \"Avatar Info Menu\" button in Avatar Menu");
 
-            ExpansionKitApi.GetExpandedMenu(ExpandedMenu.AvatarMenu).AddSimpleButton("Avatar Info Menu", new Action(() => { avatarInfoMenu?.Show(); OnMenuShown(); }), new Action<GameObject>((go) =>
+            avatarInfoMenuUixButton = ExpansionKitApi.GetExpandedMenu(ExpandedMenu.AvatarMenu).AddSimpleButton("Avatar Info Menu", new Action(() => { avatarInfoMenu?.Show(); OnMenuShown(); }));
+            avatarInfoMenuUixButton.OnInstanceCreated += new Action<UnityEngine.GameObject>(delegate
             {
-                avatarInfoMenuButtonGameObject = go;
                 GetAvatarAuthor.avatarPage.GetComponent<EnableDisableListener>().OnDisabled += new Action(() => avatarInfoMenu?.Hide());
-            }));
+            });
 
             avatarInfoMenu = ExpansionKitApi.CreateCustomFullMenuPopup(new LayoutDescription()
             {
@@ -44,13 +43,13 @@ namespace UserInfoExtensions.Modules
             avatarInfoMenu.AddLabel("Avatar information:");
             avatarInfoMenu.AddSpacer();
             avatarInfoMenu.AddSimpleButton("Back", new Action(() => avatarInfoMenu.Hide()));
-            avatarInfoMenu.AddSimpleButton("", new Action(() => { }), new Action<GameObject>((gameObject) => authorNameLabel = gameObject.transform.GetChild(0).GetComponent<Text>()));
-            avatarInfoMenu.AddSimpleButton("Show Avatar Description", new Action(() => { avatarInfoMenu.Hide(); UiManager.OpenSmallPopup("Description:", avatar.description == null ? "" : avatar.description, "Close", UiManager.ClosePopup); }));
-            avatarInfoMenu.AddSimpleButton("", new Action(() => { }), new Action<GameObject>((gameObject) => avatarNameLabel = gameObject.transform.GetChild(0).GetComponent<Text>()));
-            avatarInfoMenu.AddSimpleButton("", new Action(() => { }), new Action<GameObject>((gameObject) => platformLabel = gameObject.transform.GetChild(0).GetComponent<Text>()));
-            avatarInfoMenu.AddSimpleButton("", new Action(() => { }), new Action<GameObject>((gameObject) => releaseTypeLabel = gameObject.transform.GetChild(0).GetComponent<Text>()));
-            avatarInfoMenu.AddSimpleButton("", new Action(() => { }), new Action<GameObject>((gameObject) => lastUpdatedLabel = gameObject.transform.GetChild(0).GetComponent<Text>()));
-            avatarInfoMenu.AddSimpleButton("", new Action(() => { }), new Action<GameObject>((gameObject) => VersionLabel = gameObject.transform.GetChild(0).GetComponent<Text>()));
+            authorNameLabel = avatarInfoMenu.AddSimpleButton("", new Action(() => { }));
+            avatarInfoMenu.AddSimpleButton("Show Avatar Description", new Action(() => { avatarInfoMenu.Hide(); UiManager.OpenSmallPopup("Description:", avatar.description ?? "", "Close", UiManager.ClosePopup); }));
+            avatarNameLabel = avatarInfoMenu.AddSimpleButton("", new Action(() => { }));
+            platformLabel = avatarInfoMenu.AddSimpleButton("", new Action(() => { }));
+            releaseTypeLabel = avatarInfoMenu.AddSimpleButton("", new Action(() => { }));
+            lastUpdatedLabel = avatarInfoMenu.AddSimpleButton("", new Action(() => { }));
+            VersionLabel = avatarInfoMenu.AddSimpleButton("", new Action(() => { }));
         }
 
         private static void OnMenuShown()
@@ -59,24 +58,24 @@ namespace UserInfoExtensions.Modules
 
             if (avatar == null)
             {
-                authorNameLabel.text = "Author Name:\nUnknown";
-                avatarNameLabel.text = "Avatar Name:\nUnknown";
-                platformLabel.text = "Platform:\nUnknown";
-                releaseTypeLabel.text = "Release Type:\nUnknown";
-                lastUpdatedLabel.text = "Last Updated At:\nUnknown";
-                VersionLabel.text = "Version:\nUnknown";
+                authorNameLabel.Text = "Author Name:\nUnknown";
+                avatarNameLabel.Text = "Avatar Name:\nUnknown";
+                platformLabel.Text = "Platform:\nUnknown";
+                releaseTypeLabel.Text = "Release Type:\nUnknown";
+                lastUpdatedLabel.Text = "Last Updated At:\nUnknown";
+                VersionLabel.Text = "Version:\nUnknown";
             }
             else
             {
                 if (string.IsNullOrEmpty(avatar.authorName))
-                    authorNameLabel.text = "Author Name:\nUnknown";
+                    authorNameLabel.Text = "Author Name:\nUnknown";
                 else
-                    authorNameLabel.text = $"Author Name:\n{avatar.authorName}";
+                    authorNameLabel.Text = $"Author Name:\n{avatar.authorName}";
 
                 if (string.IsNullOrEmpty(avatar.name))
-                    avatarNameLabel.text = "Avatar Name:\nUnknown";
+                    avatarNameLabel.Text = "Avatar Name:\nUnknown";
                 else
-                    avatarNameLabel.text = $"Avatar Name:\n{avatar.name}";
+                    avatarNameLabel.Text = $"Avatar Name:\n{avatar.name}";
 
                 string supportedPlatforms = avatar.supportedPlatforms.ToString();
                 switch (supportedPlatforms)
@@ -88,35 +87,35 @@ namespace UserInfoExtensions.Modules
                         supportedPlatforms = "Quest";
                         break;
                 }
-                platformLabel.text = "Platform:\n" + supportedPlatforms;
+                platformLabel.Text = "Platform:\n" + supportedPlatforms;
 
                 if (string.IsNullOrEmpty(avatar.releaseStatus))
-                    releaseTypeLabel.text = "Release Type:\nUnknown";
+                    releaseTypeLabel.Text = "Release Type:\nUnknown";
                 else
-                    releaseTypeLabel.text = "Release Type:\n" + char.ToUpper(avatar.releaseStatus[0]) + avatar.releaseStatus.Substring(1);
+                    releaseTypeLabel.Text = "Release Type:\n" + char.ToUpper(avatar.releaseStatus[0]) + avatar.releaseStatus.Substring(1);
 
                 if (avatar.updated_at == null)
                 {
-                    lastUpdatedLabel.text = "Last Updated At:\nUnknown";
+                    lastUpdatedLabel.Text = "Last Updated At:\nUnknown";
                 }
                 else
                 {
                     if (UserInformation.militaryTimeFormat.Value)
-                        lastUpdatedLabel.text = "Last Updated At:\n" + avatar.updated_at.ToString("M/d/yyyy HH:mm");
+                        lastUpdatedLabel.Text = "Last Updated At:\n" + avatar.updated_at.ToString("M/d/yyyy HH:mm");
                     else
-                        lastUpdatedLabel.text = "Last Updated At:\n" + avatar.updated_at.ToString("M/d/yyyy hh:mm tt");
+                        lastUpdatedLabel.Text = "Last Updated At:\n" + avatar.updated_at.ToString("M/d/yyyy hh:mm tt");
                 }
-                 
+
                 if (avatar.version < 1)
-                    VersionLabel.text = "Version:\nUnknown";
+                    VersionLabel.Text = "Version:\nUnknown";
                 else
-                    VersionLabel.text = $"Version:\n{avatar.version}";
+                    VersionLabel.Text = $"Version:\n{avatar.version}";
             }
         }
 
         public override void OnPreferencesSaved()
         {
-            avatarInfoMenuButtonGameObject?.SetActive(AvatarInfoMenuButton.Value);
+            avatarInfoMenuUixButton?.SetVisible(AvatarInfoMenuButton.Value);
         }
     }
 }

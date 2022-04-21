@@ -4,6 +4,7 @@ using System.Net;
 using MelonLoader;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UIExpansionKit.API.Controls;
 using UnityEngine;
 using VRC.Core;
 using VRC.UI;
@@ -17,8 +18,8 @@ namespace UserInfoExtensions.Modules
         public static MelonPreferences_Entry<bool> AuthorFromSocialMenuButton;
         public static MelonPreferences_Entry<bool> AuthorFromAvatarMenuButton;
 
-        public static GameObject authorFromSocialMenuButtonGameObject;
-        public static GameObject authorFromAvatarMenuButtonGameObject;
+        public static IMenuButton authorFromSocialMenuUixButton;
+        public static IMenuButton authorFromAvatarMenuUixButton;
 
         public static Il2CppSystem.Uri avatarLink;
 
@@ -30,8 +31,10 @@ namespace UserInfoExtensions.Modules
             AuthorFromSocialMenuButton = MelonPreferences.CreateEntry("UserInfoExtensionsSettings", nameof(AuthorFromSocialMenuButton), false, "Show \"Avatar Author\" button in Social Menu");
             AuthorFromAvatarMenuButton = MelonPreferences.CreateEntry("UserInfoExtensionsSettings", nameof(AuthorFromAvatarMenuButton), true, "Show \"Avatar Author\" button in Avatar Menu");
 
-            UserInfoExtensionsMod.userDetailsMenu.AddSimpleButton("Avatar Author", FromSocial, new Action<GameObject>((gameObject) => { authorFromSocialMenuButtonGameObject = gameObject; gameObject.SetActive(AuthorFromSocialMenuButton.Value); }));
-            UIExpansionKit.API.ExpansionKitApi.GetExpandedMenu(UIExpansionKit.API.ExpandedMenu.AvatarMenu).AddSimpleButton("Avatar Author", FromAvatar, new Action<GameObject>((gameObject) => { authorFromAvatarMenuButtonGameObject = gameObject; gameObject.SetActive(AuthorFromAvatarMenuButton.Value); }));
+            authorFromSocialMenuUixButton = UserInfoExtensionsMod.userDetailsMenu.AddSimpleButton("Avatar Author", FromSocial);
+            authorFromSocialMenuUixButton.SetVisible(AuthorFromSocialMenuButton.Value);
+            authorFromAvatarMenuUixButton = UIExpansionKit.API.ExpansionKitApi.GetExpandedMenu(UIExpansionKit.API.ExpandedMenu.AvatarMenu).AddSimpleButton("Avatar Author", FromAvatar);
+            authorFromAvatarMenuUixButton.SetVisible(AuthorFromAvatarMenuButton.Value);
             UserInfoExtensionsMod.menu.AddSimpleButton("Avatar Author", FromSocial);
             UserInfoExtensionsMod.menu.AddSpacer();
         }
@@ -42,8 +45,8 @@ namespace UserInfoExtensions.Modules
         }
         public override void OnPreferencesSaved()
         {
-            authorFromSocialMenuButtonGameObject?.SetActive(AuthorFromSocialMenuButton.Value);
-            authorFromAvatarMenuButtonGameObject?.SetActive(AuthorFromAvatarMenuButton.Value);
+            authorFromSocialMenuUixButton?.SetVisible(AuthorFromSocialMenuButton.Value);
+            authorFromAvatarMenuUixButton?.SetVisible(AuthorFromAvatarMenuButton.Value);
         }
         public override void OnUserInfoOpen()
         {

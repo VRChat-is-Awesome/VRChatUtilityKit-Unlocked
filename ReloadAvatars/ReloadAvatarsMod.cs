@@ -1,6 +1,7 @@
 ﻿using System;
 using MelonLoader;
 using UIExpansionKit.API;
+using UIExpansionKit.API.Controls;
 using UnityEngine;
 using VRChatUtilityKit.Utilities;
 
@@ -11,8 +12,8 @@ namespace ReloadAvatars
 {
     public class ReloadAvatarsMod : MelonMod
     {
-        public static GameObject reloadAvatarButton;
-        public static GameObject reloadAllAvatarsButton;
+        public static IMenuButton reloadAvatarButton;
+        public static IMenuButton reloadAllAvatarsButton;
 
         public static MelonPreferences_Entry<bool> reloadAvatarPref;
         public static MelonPreferences_Entry<bool> reloadAllAvatarsPref;
@@ -26,7 +27,7 @@ namespace ReloadAvatars
             foreach (MelonPreferences_Entry entry in category.Entries)
                 entry.OnValueChangedUntyped += OnPrefChanged;
 
-            ExpansionKitApi.GetExpandedMenu(ExpandedMenu.UserQuickMenu).AddSimpleButton("Reload Avatar", new Action(() =>
+            reloadAvatarButton = ExpansionKitApi.GetExpandedMenu(ExpandedMenu.UserQuickMenu).AddSimpleButton("Reload Avatar", new Action(() =>
             {
                 try
                 {
@@ -36,9 +37,10 @@ namespace ReloadAvatars
                 {
                     LoggerInstance.Error("Error while reloading single avatar:\n" + ex.ToString());
                 } // Ignore
-            }), new Action<GameObject>((gameObject) => { reloadAvatarButton = gameObject; reloadAvatarButton.SetActive(reloadAllAvatarsPref.Value); OnPrefChanged(); }));
+            }));
+            reloadAvatarButton.SetVisible(reloadAllAvatarsPref.Value);
 
-            ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Reload All Avatars", new Action(() =>
+            reloadAllAvatarsButton = ExpansionKitApi.GetExpandedMenu(ExpandedMenu.QuickMenu).AddSimpleButton("Reload All Avatars", new Action(() =>
             {
                 try
                 {
@@ -48,13 +50,14 @@ namespace ReloadAvatars
                 {
                     LoggerInstance.Error("Error while reloading all avatars:\n" + ex.ToString());
                 } // Ignore
-            }), new Action<GameObject>((gameObject) => { reloadAllAvatarsButton = gameObject; reloadAllAvatarsButton.SetActive(reloadAvatarPref.Value); OnPrefChanged(); }));
+            }));
+            reloadAllAvatarsButton.SetVisible(reloadAvatarPref.Value);
             LoggerInstance.Msg("Initialized!");
         }
         public void OnPrefChanged()
         {
-            reloadAvatarButton?.SetActive(reloadAvatarPref.Value);
-            reloadAllAvatarsButton?.SetActive(reloadAllAvatarsPref.Value);
+            reloadAvatarButton?.SetVisible(reloadAvatarPref.Value);
+            reloadAllAvatarsButton?.SetVisible(reloadAllAvatarsPref.Value);
         }
     }
 }
