@@ -244,7 +244,7 @@ Here is a long list of the awesome people who have helped make these mods a real
 - [Sarayalth](https://github.com/Sarayalth) for a lot of contributions to many of the mods here.
 - [ljoonal](https://github.com/ljoonal) for various modifications, cleanup, and management.
 - [Nirv](https://github.com/Nirv-git) for taking up maintaining InstanceHistory in [their repository](https://github.com/Nirv-git/VRC-Mods) and more.
-- [Adnezz](https://github.com/Adnezz) for taking up maintaining PlayerHistory in [their repository](https://github.com/Adnezz/PlayerList)
+- [Adnezz](https://github.com/Adnezz) for taking up maintaining PlayerList in [their repository](https://github.com/Adnezz/PlayerList)
 - [SDraw](https://github.com/SDraw) for VRCUK fix help
 
 In a way, it's what the "Sleepers" means as the author name.
