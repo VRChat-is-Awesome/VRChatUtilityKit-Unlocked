@@ -239,7 +239,7 @@ namespace VRChatUtilityKit.Ui
         /// <param name="user">The user to open</param>
         public static void OpenUserInUserInfoPage(IUser user)
         {
-            UIManagerImpl.prop_UIManagerImpl_0.Method_Public_Void_IUser_0(user);
+            UIManagerImpl.prop_UIManagerImpl_0.Method_Public_Void_IUser_Boolean_0(user);
         }
 
         /// <summary>
