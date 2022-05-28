@@ -248,7 +248,7 @@ namespace VRChatUtilityKit.Utilities
             postfix(() => typeof(APIUser).GetMethod("LocalAddFriend"), nameof(OnFriend));
             postfix(() => typeof(APIUser).GetMethod("UnfriendUser"), nameof(OnUnfriend));
             postfix(
-                () => typeof(RoomManager).GetMethod("Method_Public_Static_Boolean_ApiWorld_ApiWorldInstance_String_Int32_0"),
+                () => typeof(RoomManager).GetMethod("Method_Public_Static_Boolean_ApiWorld_ApiWorldInstance_String_Int32_1"),
                 nameof(OnInstanceChange)
             );
             prefix(() => typeof(NetworkManager).GetMethod("OnMasterClientSwitched"), nameof(OnMasterChange));
