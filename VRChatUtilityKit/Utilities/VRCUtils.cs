@@ -137,34 +137,6 @@ namespace VRChatUtilityKit.Utilities
         // Some logic copied from Requi's RemodCE (same GPL3 license), and also original credit for some of the base goes to Psychloor
         private static void CheckWorld(ApiWorld world, ApiWorldInstance instance)
         {
-            if (instance.type <= InstanceAccessType.FriendsOfGuests)
-            {
-                var rootGameObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-                if (rootGameObjects.Any(go => go.name is "eVRCRiskFuncEnable" or "UniversalRiskyFuncEnable"))
-                {
-                    VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World allowed to use risky functions");
-                    AreRiskyFunctionsAllowed = true;
-                    return;
-                }
-                if (rootGameObjects.Any(go => go.name is "eVRCRiskFuncDisable" or "UniversalRiskyFuncDisable"))
-                {
-                    VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World NOT allowed to use risky functions");
-                    AreRiskyFunctionsAllowed = false;
-                    return;
-                }
-
-                foreach (string worldTag in world.tags)
-                {
-                    if (worldTag.ToLower().Contains("game") || worldTag.ToLower().Contains("club"))
-                    {
-                        VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World NOT allowed to use risky functions");
-                        AreRiskyFunctionsAllowed = false;
-                        return;
-                    }
-                }
-            }
-
-            VRChatUtilityKitMod.Instance.LoggerInstance.Msg("World allowed to use risky functions");
             AreRiskyFunctionsAllowed = true;
         }
 
